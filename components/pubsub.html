@@ -1,0 +1,8 @@
+<div id="title">
+	<div class="cell titleText" id="titleClients">CLIENTS</div>
+	<div class="cell middleCell titleText" id="titlePub">PUBLISHERS</div>
+	<div class="cell rightCell titleText" id="titleSub">SUBSCRIBERS</div>
+</div>
+<div id="apps">
+	<div ng-repeat="(key,value) in clients" ng-include="'components/app.html'" id="{{key}}" class="app"></div>
+</div>

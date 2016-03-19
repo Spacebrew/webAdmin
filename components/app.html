@@ -1,0 +1,13 @@
+<div class="cell">
+	{{value.name}}<br>{{value.remoteAddress}}
+</div>
+<div class="cell middleCell">
+	<div ng-repeat="message in value.publish.messages" class="publish {{message.type}}{{message.routes.length > 0 ? 'Routed' : 'NotRouted'}}L" id="pub_{{value.name}}_{{message.name}}">
+	{{message.name}}
+	</div>
+</div>
+<div class="cell rightCell">
+	<div ng-repeat="message in value.subscribe.messages" class="subscribe {{message.type}}{{message.routes.length > 0 ? 'Routed' : 'NotRouted'}}R" id="sub_{{value.name}}_{{message.name}}">
+	{{message.name}}
+	</div>
+</div>
