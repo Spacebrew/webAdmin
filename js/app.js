@@ -11,9 +11,14 @@ function compareRoutes( route1, route2 ){
 
 var app = angular.module("admin", []);
 
-app.controller("adminCtl", function($scope) {
+// each sub should *probably* have its own controller...
+app.controller("adminCtl", function($scope, $timeout) {
 	$scope.filter = "test";
 	$scope.clients = {};
+
+	// canvas vars
+	var canvas, ctx;
+	var paths = {};
 
 	// spacebrew vars
 	var sb = null;
@@ -73,6 +78,9 @@ app.controller("adminCtl", function($scope) {
 		var pubsub = [];
 		var values = [];
 
+		var bFound = false;
+		var pubDiv, subDiv;
+
 		if ( $scope.clients[pname] ){
 			pmess = $scope.clients[pname].publish.messages;
 			pubsub.push(pmess);
@@ -94,10 +102,17 @@ app.controller("adminCtl", function($scope) {
 						// create array for routes if not there
 						pubsub[j][i].routes = pubsub[j][i].routes === undefined ? [] : pubsub[j][i].routes;
 						pubsub[j][i].routes.push( values[j] );
+						bFound = true;
+
+						if ( j == 0 ){
+							pubDiv = values[j].name;
+						} else {
+							subDiv = values[j].name;
+						}
+						break;
 					}
 				}
 			}
-
 		} else if (type == "remove" ){
 			for ( var j=0; j<pubsub.length; j++){
 				for ( var i=0; i<pubsub[j].length; i++){
@@ -119,12 +134,59 @@ app.controller("adminCtl", function($scope) {
 				}
 			}
 		}
-		console.log($scope.clients);
-		$scope.$digest();
+
+		$scope.$apply();
+
+
+		if ( bFound ){
+			var fromDiv = "pub_" + pub.clientName + "_" + pubDiv;
+			var toDiv = "sub_" + sub.clientName + "_" + subDiv;
+			// todo: make this work for real
+			console.log("hey")
+			var name = pname +":"+ pub.name +":"+ sname + ":"+sub.name;
+			console.log(name);
+			$timeout(updatePath, 500, false, name, fromDiv, toDiv );
+		}
+
 	}
 
-	// internal spacebrew functions
+	function updatePath( name, fromDivId, toDivId ){
+		// todo: scrolling!
+		// todo: window resize
+
+		var path;
+		if ( name in paths ){
+			path = paths[name];
+			path.removeSegments();
+		} else {
+			paths[name] = new paper.Path();
+			path = paths[name];
+		}
+		path.strokeColor = 'black';
+
+		var fromDiv = document.getElementById(fromDivId);
+		var toDiv = document.getElementById(toDivId);
+
+		var fromRect 	= fromDiv.getBoundingClientRect();
+		var toRect 		= toDiv.getBoundingClientRect();
+		var fromH 		= fromRect.bottom - fromRect.top;
+		var toH 		= toRect.bottom - toRect.top;
+
+		var start = new paper.Point(fromRect.right  , fromRect.top + fromH/2);
+		var end = new paper.Point(toRect.left, toRect.top + toH/2);
+
+		path.moveTo(start);
+		path.lineTo(end);
+		// Draw the view now:
+		paper.view.draw();
+	}
+
+	$scope.setupCanvas = function(){
+		canvas = document.getElementById('canvas');
+		paper.setup(canvas);
+	}
 
 	// setup spacebrew on init
 	$scope.setupSpacebrew();
+	$scope.setupCanvas();
 });

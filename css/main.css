@@ -103,6 +103,7 @@ html, body {
 
 /* Main divs */
 #container {
+    position: absolute;
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -110,11 +111,13 @@ html, body {
 }
 
 #sidebar {
+    position: absolute;
     width:20%;
     height: 100%;
     min-width: 100px;
     background-color: #C1FBF0;
     display: table-cell;
+    z-index: 1;
 }
 
 #pubsub {
@@ -122,11 +125,26 @@ html, body {
     padding: 2%;
     height: 100%;
     display: table-cell;
+    position: absolute;
+    left: 20%;
+    z-index: 1;
+}
+
+#canvas {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 0;
 }
 
 /* Section: Container */
 
 /* Section: Pubsub */
+#pubsubContainer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
 
 #title {
     width: 100%;

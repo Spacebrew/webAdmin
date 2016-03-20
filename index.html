@@ -3,6 +3,7 @@
   <head>
     <!-- JS -->
     <script src="js/vendor/angular.min.js"></script>
+    <script src="js/vendor/paper-core.min.js"></script>
     <script src="js/vendor/sb-1.4.1.min.js"></script>
     <script src="js/vendor/sb-admin-0.1.5.js"></script>
     <script src="js/app.js"></script>
@@ -13,6 +14,7 @@
   </head>
   <body>
     <div id="container" ng-app="admin" ng-controller="adminCtl">
+      <canvas id="canvas"></canvas>
       <div id="sidebar" ng-include="'components/sidebar.html'"></div>
       <div id="pubsub" ng-include="'components/pubsub.html'" ></div>
     </div>
