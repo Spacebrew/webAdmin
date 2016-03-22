@@ -23,6 +23,11 @@ app.controller("adminCtl", function($scope, $timeout) {
 	// spacebrew vars
 	var sb = null;
 
+
+	/**********************************************
+		SPACEBREW
+	**********************************************/
+
 	$scope.spacebrew = function(){
 		return sb;
 	}
@@ -44,6 +49,11 @@ app.controller("adminCtl", function($scope, $timeout) {
 
 		sb.connect();
 	}
+
+
+	/**********************************************
+		SPACEBREW EVENTS
+	**********************************************/
 
 	function onNewClient( client ) {
 		console.log("[onNewClient] new client ", client);
@@ -77,6 +87,7 @@ app.controller("adminCtl", function($scope, $timeout) {
 		var pmess, smess;
 		var pubsub = [];
 		var values = [];
+		var route = { pub: pub, sub: sub };
 
 		var bFound = false;
 		var pubDiv, subDiv;
@@ -101,7 +112,10 @@ app.controller("adminCtl", function($scope, $timeout) {
 						&& pubsub[j][i].type == values[j].type ){
 						// create array for routes if not there
 						pubsub[j][i].routes = pubsub[j][i].routes === undefined ? [] : pubsub[j][i].routes;
-						pubsub[j][i].routes.push( values[j] );
+						
+						var to = j == 0 ? 1 : 0;
+
+						pubsub[j][i].routes.push( values[to] );
 						bFound = true;
 
 						if ( j == 0 ){
@@ -122,8 +136,16 @@ app.controller("adminCtl", function($scope, $timeout) {
 						if ( pubsub[j][i].routes ){
 							var routes = pubsub[j][i].routes;
 							for ( var k=0; k<routes.length; k++){
-								if ( compareRoutes(routes[k], values[j]) ){
+								
+								var to = j == 0 ? 1 : 0;
+								if ( compareRoutes(routes[k], values[to]) ){
 									routes.splice( k, 1 );
+
+									var name = pname +":"+ pub.name +":"+ sname + ":"+sub.name;
+									if ( name in paths ){
+										paths[name].removeSegments();
+										delete paths[name];
+									}
 									break;
 								} else {
 								}
@@ -142,13 +164,76 @@ app.controller("adminCtl", function($scope, $timeout) {
 			var fromDiv = "pub_" + pub.clientName + "_" + pubDiv;
 			var toDiv = "sub_" + sub.clientName + "_" + subDiv;
 			// todo: make this work for real
-			console.log("hey")
 			var name = pname +":"+ pub.name +":"+ sname + ":"+sub.name;
 			console.log(name);
 			$timeout(updatePath, 500, false, name, fromDiv, toDiv );
 		}
 
 	}
+
+	/**********************************************
+		ROUTING
+	**********************************************/
+
+	$scope.currentSelected = null;
+
+	$scope.selectRouter = function(isPub, clientName, remoteAddress, routeName, routeType, divId){
+		var toRouteTo = {
+			div: document.getElementById(divId),
+			clientName : clientName,
+			name : routeName,
+			type : routeType,
+			remoteAddress: remoteAddress,
+			isPublisher: isPub
+		};
+
+		// first click
+		if ( $scope.currentSelected == null ){
+			$scope.currentSelected = toRouteTo;
+		} else {
+			var pub = isPub ? toRouteTo : $scope.currentSelected;
+			var sub = !isPub ? toRouteTo : $scope.currentSelected;
+			
+			// does the route exist?
+			
+			var pname = pub.clientName +":"+ pub.remoteAddress;
+			var sname = sub.clientName +":"+ sub.remoteAddress;
+			var pmess = $scope.clients[pname].publish.messages;
+			var smess = $scope.clients[sname].subscribe.messages;
+
+			var routeExists = false;
+
+			for ( var i=0; i<pmess.length; i++){
+				if ( pmess[i].name == pub.name 
+					&& pmess[i].type == pub.type ){
+					if ( pmess[i].routes ){
+						var routes = pmess[i].routes;
+						for ( var k=0; k<routes.length; k++){
+							if ( compareRoutes(routes[k], sub) ){
+								routeExists = true;
+								break;
+							}
+						}
+					}
+					break;
+				}
+			}
+
+			// nope, new
+			if ( !routeExists ){
+				// route between these two lovebirds
+				sb.addRoute( pub.clientName, pub.remoteAddress, pub.name, sub.clientName, sub.remoteAddress, sub.name );
+			} else {
+				sb.removeRoute( pub.clientName, pub.remoteAddress, pub.name, sub.clientName, sub.remoteAddress, sub.name );
+			}
+			// then set back 2 null
+			$scope.currentSelected = null;
+		}
+	}
+
+	/**********************************************
+		DRAWING
+	**********************************************/
 
 	function updatePath( name, fromDivId, toDivId ){
 		// todo: scrolling!
