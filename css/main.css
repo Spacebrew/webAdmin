@@ -208,6 +208,16 @@ html, body {
     text-align: left;
 }
 
+.dropDown {
+    float:left;
+    width: 10%;
+    font-size: 1.2rem;
+}
+
+.appDrop {
+
+}
+
 .app {
     width: 100%;
     display: table;
@@ -257,7 +267,7 @@ html, body {
     font-size:.6rem;
 }
 
-.appDesc {
+.hidden {
     visibility: hidden;
     display: none;
 }
@@ -273,15 +283,37 @@ html, body {
     font-size: .6rem;
     font-weight: bold;
     margin-top: .3rem;
+    margin-left: 1rem;
 }
 
+.routeCount {
+    opacity: .2;
+}
+
+@media screen and (max-width: 50em) {
+
+    .routeCount {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+.smallText {
+    flex-grow: 1;
+    text-align: left;
+    font-size: .5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* 
 .routed {
     background: blue;
 }
 
 .notrouted {
     background: grey;
-}
+} */
 
 .endClosed {
     border: 0.35rem solid #000;
@@ -309,7 +341,7 @@ html, body {
 
 .publish, .subscribe {
     margin-bottom: .2rem;
-    transition: background-color ease-out .1s;
+    /* transition: all ease-in-out .25s; */
     padding: 0.2rem;
     display: flex;
     align-items: center;

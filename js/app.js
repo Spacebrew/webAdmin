@@ -371,35 +371,36 @@ app.controller("adminCtl", function($scope, $timeout) {
 			paper.view.draw();
 		}
 	}
- 
-/*
-	'default':0,
-	'name':'button',
-	'routes':[
-		{
-			'clientName':'CoolApp',
-			'name':'boolListener'
-			'remoteAddress':'192.168.1.1',
-			'type':'boolean'
-		}
-	],
-	'type':'boolean'
- */
 
 	function redrawAll() {
 		// loop through all pubs, find paths, and redraw them!
 		for ( var name in $scope.clients ){
 			var client = $scope.clients[name];
+
+			var cMinimized = client.minimized === undefined ? false : client.minimized;
+
 			var pubs = client.publish.messages;
 			for ( var i=0; i<pubs.length; i++){
 				var pub = pubs[i];
 				var fromDiv = "pub_" + client.name +"_"+ client.remoteAddress + "_" + pub.name;
+
+				if ( cMinimized ){
+					fromDiv = getMinDivId(client, true);
+				}
 
 				if ( !pub.routes ) continue;
 
 				for ( var j=0; j<pub.routes.length; j++){
 					var sub = pub.routes[j];
 					var toDiv = "sub_" + sub.clientName +"_"+ sub.remoteAddress + "_" + sub.name;
+
+					try {
+						var n2 = sub.clientName +":"+ sub.remoteAddress;
+						var c2Min = $scope.clients[n2].minimized === undefined ? false : $scope.clients[n2].minimized;
+						if ( c2Min ){
+							toDiv = getMinDivId( $scope.clients[n2], false );
+						}
+					} catch(e){}
 
 					var pname = client.name +":"+ client.remoteAddress;
 					var sname = sub.clientName +":"+ sub.remoteAddress;
@@ -427,6 +428,26 @@ app.controller("adminCtl", function($scope, $timeout) {
 	}
 
 	/**********************************************
+		HELPERS
+	**********************************************/
+
+	//todo: more of these!
+	
+	/**
+	 * Get ID of "minized" div for publishers OR subscribers
+	 * @param  {Object}  client Client object from $scope.clients
+	 * @param  {Boolean} isPub  is publisher (true)? or is subscriber (false)?
+	 * @return {String}         ID of div in DOM
+	 */
+	function getMinDivId( client, isPub ){
+		if ( isPub ){
+			return "publishers_" + client.name +"_"+ client.remoteAddress +"_min";
+		} else {
+			return "subscribers_" + client.name +"_"+ client.remoteAddress +"_min"
+		}
+	}
+
+	/**********************************************
 		EVENTS
 	**********************************************/
 
@@ -439,6 +460,69 @@ app.controller("adminCtl", function($scope, $timeout) {
 		if ( $scope.currentSelected ){
 			// $scope.currentSelected = null;
 		}
+	}
+
+	$scope.allMinimized = false;
+
+	// toggle
+	$scope.minimizeAll = function(){
+		for ( var name in $scope.clients ){
+			var client = $scope.clients[name];
+			minimize(client, !$scope.allMinimized);
+		}
+		$scope.allMinimized = !$scope.allMinimized;
+	}
+
+	$scope.minimize = function( id ){
+		console.log( id );
+		console.log( $scope.clients[id] );
+		minimize( $scope.clients[id] );
+	}
+
+	// toggle
+	function minimize(client, force){
+		var forceSmall = force === undefined ? false : force;
+
+		var doMinimize = client.minimized === undefined ? true : !client.minimized;
+		if ( forceSmall ) doMinimize = true;
+
+		client.minimized = doMinimize;
+
+		var pubs = client.publish.messages;
+		for ( var i=0; i<pubs.length; i++){
+			var pub = pubs[i];
+			var pubDiv = document.getElementById("pub_" + client.name +"_"+ client.remoteAddress + "_" + pub.name);
+			
+			if (doMinimize){
+				pubDiv.classList.add("hidden");
+			} else {
+				pubDiv.classList.remove("hidden");
+			}
+		}
+
+		var subs = client.subscribe.messages;
+		for ( var i=0; i<subs.length; i++){
+			var sub = subs[i];
+			var subDiv = document.getElementById("sub_" + client.name +"_"+ client.remoteAddress + "_" + sub.name);
+			
+			if (doMinimize){
+				subDiv.classList.add("hidden");
+			} else {
+				subDiv.classList.remove("hidden");
+			}
+		}
+		var pubMin = document.getElementById( getMinDivId(client, true) );
+		var subMin = document.getElementById( getMinDivId(client, false) );
+
+		if (doMinimize){
+			pubMin.classList.remove("hidden");
+			subMin.classList.remove("hidden");
+		} else {
+			pubMin.classList.add("hidden");
+			subMin.classList.add("hidden");
+		}
+
+		redrawAll();
 	}
 
 	/**********************************************

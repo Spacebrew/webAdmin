@@ -1,18 +1,31 @@
 <div class="cell">
+	<div class="dropDown appDrop noselect" ng-click="minimize(value.name + ':' +value.remoteAddress)">ˇ</div>
 	<div class="appName">{{value.name}}</div>
 	<div class="appRA">{{value.remoteAddress}}</div>
 	<div class="appDBtn noselect">?</div>
-	<div class="appDesc">{{value.description}}</div>
+	<div class="hidden">{{value.description}}</div>
 </div>
 <div class="cell middleCell">
 	<div ng-repeat="message in value.publish.messages" class="noselect publish {{message.type}}{{message.routes.length > 0 ? 'Routed' : 'NotRouted'}}L" id="pub_{{value.name}}_{{value.remoteAddress}}_{{message.name}}" ng-click="selectRouter(true, value.name, value.remoteAddress, message.name, message.type, 'pub_' + value.name+'_'+value.remoteAddress + '_' + message.name)" style="{{$last ? 'margin-bottom:0px' : '';}}">
-	{{message.name}}
-	<div class="{{message.routes.length > 0 ? 'endClosed' : 'endOpen'}}"></div>
+		<div class="routeCount smallText">
+			&nbsp;{{message.routes ? message.routes.length : 0}} routes
+		</div>&nbsp;
+		<div>{{message.name}}</div>
+		<div class="{{message.routes.length > 0 ? 'endClosed' : 'endOpen'}}"></div>
+	</div>
+	<div id="publishers_{{value.name}}_{{value.remoteAddress}}_min" class="noselect publish hidden">
+		<span class="smallText" style="flex-grow:0">{{value.publish.messages.length}} publishers</span>
+		<div class="{{(value.publish.messages.length > 0) ? 'endClosed' : 'endOpen'}}"></div>
 	</div>
 </div>
 <div class="cell rightCell">
 	<div ng-repeat="message in value.subscribe.messages" class="noselect subscribe {{message.type}}{{message.routes.length > 0 ? 'Routed' : 'NotRouted'}}R" id="sub_{{value.name}}_{{value.remoteAddress}}_{{message.name}}" ng-click="selectRouter(false, value.name, value.remoteAddress, message.name, message.type, 'sub_' + value.name+'_'+ value.remoteAddress +'_'+ message.name)" style="{{$last ? 'margin-bottom:0px' : '';}}">
 	<div class="{{message.routes.length > 0 ? 'endClosed' : 'endOpen'}}"></div>
-	{{message.name}}
+	<div>{{message.name}}</div>
+	<div class="routeCount smallText" style="text-align:right;">&nbsp;{{message.routes ? message.routes.length : 0}} routes</div>&nbsp;
+	</div>
+	<div id="subscribers_{{value.name}}_{{value.remoteAddress}}_min" class="noselect subscribe hidden">
+		<div class="{{message.routes.length > 0 ? 'endClosed' : 'endOpen'}}"></div>
+		<span class="smallText">{{value.subscribe.messages.length}} subscribers</span>
 	</div>
 </div>
