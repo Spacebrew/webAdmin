@@ -14,6 +14,51 @@ var app = angular.module("admin", []);
 // each sub should *probably* have its own controller...
 app.controller("adminCtl", function($scope, $timeout) {
 	$scope.filter = "test";
+
+	/*
+		Object containing all pubsub info
+	 	Structure example, an app routed to itself:
+	 	{
+			'CoolApp:192.168.1.1':{
+				'description':"it's cool",
+				'name':'CoolApp',
+				'publish':{
+					'messages':[
+						{
+							'default':0,
+							'name':'button',
+							'routes':[
+								{
+									'clientName':'CoolApp',
+									'name':'boolListener'
+									'remoteAddress':'192.168.1.1',
+									'type':'boolean'
+								}
+							],
+							'type':'boolean'
+						}
+					]
+				},
+				'remoteAddress':'192.168.1.1',
+				'subscribe':{
+					'messages':[
+						{
+							'name':'boolListener',
+							'routes':[
+								{
+									'clientName':'CoolApp',
+									'name':'button'
+									'remoteAddress':'192.168.1.1',
+									'type':'boolean'
+								}
+							],
+							'type':'boolean'
+						}
+					]
+				}
+			}
+	 	}
+	*/
 	$scope.clients = {};
 
 	// canvas vars
@@ -165,8 +210,7 @@ app.controller("adminCtl", function($scope, $timeout) {
 			var toDiv = "sub_" + sub.clientName + "_" + subDiv;
 			// todo: make this work for real
 			var name = pname +":"+ pub.name +":"+ sname + ":"+sub.name;
-			console.log(name);
-			$timeout(updatePath, 500, false, name, fromDiv, toDiv );
+			$timeout(updatePath, 0, false, name, fromDiv, toDiv );
 		}
 
 	}
@@ -236,6 +280,13 @@ app.controller("adminCtl", function($scope, $timeout) {
 	**********************************************/
 
 	function updatePath( name, fromDivId, toDivId ){
+		var fromDiv = document.getElementById(fromDivId);
+		var toDiv = document.getElementById(toDivId);
+
+		if ( !fromDiv || !toDiv ){
+			$timeout( updatePath, 0, false, name, fromDivId, toDivId );
+		}
+
 		// todo: scrolling!
 		// todo: window resize
 
@@ -248,9 +299,6 @@ app.controller("adminCtl", function($scope, $timeout) {
 			path = paths[name];
 		}
 		path.strokeColor = 'black';
-
-		var fromDiv = document.getElementById(fromDivId);
-		var toDiv = document.getElementById(toDivId);
 
 		var fromRect 	= fromDiv.getBoundingClientRect();
 		var toRect 		= toDiv.getBoundingClientRect();
@@ -265,10 +313,44 @@ app.controller("adminCtl", function($scope, $timeout) {
 		// Draw the view now:
 		paper.view.draw();
 	}
+ 
+	function redrawAll() {
+		for ( var name in paths ){
+			var path = paths[name];
+			path.removeSegments();
+			path.strokeColor = 'black';
+
+			var fromRect 	= fromDiv.getBoundingClientRect();
+			var toRect 		= toDiv.getBoundingClientRect();
+			var fromH 		= fromRect.bottom - fromRect.top;
+			var toH 		= toRect.bottom - toRect.top;
+
+			var start = new paper.Point(fromRect.right  , fromRect.top + fromH/2);
+			var end = new paper.Point(toRect.left, toRect.top + toH/2);
+
+			path.moveTo(start);
+			path.lineTo(end);
+		}
+		// Draw the view now:
+		paper.view.draw();
+	}
+
+	/**********************************************
+		EVENTS
+	**********************************************/
+
+	function onWindowResize(e) {
+		
+	}
+
+	/**********************************************
+		SETUP
+	**********************************************/
 
 	$scope.setupCanvas = function(){
 		canvas = document.getElementById('canvas');
 		paper.setup(canvas);
+		window.addEventListener('resize', onWindowResize.bind($scope));
 	}
 
 	// setup spacebrew on init
