@@ -214,10 +214,16 @@ html, body {
     padding-bottom: 2%;
     padding: 1%;
     box-sizing: border-box;
+    -webkit-transition: background-color ease-in-out .25s;
+    transition: background-color ease-in-out .25s;
 }
 
 .odd {
     background: #F5F5F5;
+}
+
+.app:hover {
+    background: #FAFCCC;
 }
 
 .cell {
@@ -369,6 +375,38 @@ html, body {
 .stringNotRoutedR {
     background: linear-gradient(90deg, #DEDFE1 99%, #B526F0 1%);
 }
+
+/* ROUTING */
+.routingL {
+    color: white;
+    width: 110%;
+    left: -14%;
+    position: relative;
+}
+
+.rangeRoutedL.routingL, .rangeRoutedR.routingR  {
+    background: #F3B03E; 
+}
+
+.booleanRoutedL.routingL, .booleanRoutedR.routingR {
+    background: #B526F0; 
+}
+
+.stringRoutedL.routingL, .stringRoutedR.routingR {
+    background: #B526F0; 
+}
+
+.customRoutedL.routingL, .customRoutedR.routingR {
+    background: #CCC; 
+}
+
+.routingR {
+    color: white;
+    width: 110%;
+    /* left: 14%; */
+    position: relative;
+}
+
 
 /* ==========================================================================
    Helper classes

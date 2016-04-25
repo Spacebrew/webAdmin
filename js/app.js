@@ -243,10 +243,23 @@ app.controller("adminCtl", function($scope, $timeout) {
 		// first click
 		if ( $scope.currentSelected == null ){
 			$scope.currentSelected = toRouteTo;
+			toRouteTo.div.classList.remove(routeType + "NotRouted" + (isPub? "L" : "R"));
+			toRouteTo.div.classList.add(routeType + "Routed" + (isPub? "L" : "R"));
+			toRouteTo.div.classList.add("routing" + (isPub? "L" : "R"));
 		} else {
 			var pub = isPub ? toRouteTo : $scope.currentSelected;
 			var sub = !isPub ? toRouteTo : $scope.currentSelected;
 			
+			// remove classes
+			$scope.currentSelected.div.classList.remove("routing" + (!isPub? "L" : "R"));
+
+			// u clicked urself
+			if ( $scope.currentSelected.div == toRouteTo.div ){
+				$scope.currentSelected.div.classList.remove("routing" + (isPub? "L" : "R"));
+				$scope.currentSelected = null;
+				return;
+			}
+
 			// does the route exist?
 			
 			var pname = pub.clientName +":"+ pub.remoteAddress;
@@ -421,6 +434,13 @@ app.controller("adminCtl", function($scope, $timeout) {
 		redrawAll();
 	}
 
+	function onMouseDown() {
+		//todo
+		if ( $scope.currentSelected ){
+			// $scope.currentSelected = null;
+		}
+	}
+
 	/**********************************************
 		SETUP
 	**********************************************/
@@ -430,6 +450,7 @@ app.controller("adminCtl", function($scope, $timeout) {
 		paper.setup(canvas);
 
 		window.addEventListener('resize', onWindowResize.bind($scope));
+		document.body.addEventListener('mousedown', onMouseDown.bind($scope));
 	}
 
 	// setup spacebrew on init
