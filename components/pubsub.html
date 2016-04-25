@@ -4,5 +4,5 @@
 	<div class="cell rightCell titleText" id="titleSub">SUBSCRIBERS</div>
 </div>
 <div id="apps">
-	<div ng-repeat="(key,value) in clients" ng-include="'components/app.html'" id="{{key}}" class="app"></div>
+	<div ng-repeat="(key,value) in clients" ng-include="'components/app.html'" id="{{key}}" ng-class-odd="'app odd'" ng-class-even="'app'"></div>
 </div>

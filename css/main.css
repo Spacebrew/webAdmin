@@ -95,10 +95,59 @@ textarea {
    Spacebrew custom styles
    ========================================================================== */
 
+@font-face {
+    font-family: DIN;
+    src: url(../fonts/DIN/DINPro-Regular.otf);
+    font-weight: normal;
+}
+@font-face {
+    font-family: DIN;
+    src: url(../fonts/DIN/DINPro-Bold.otf);
+    font-weight: bold;
+}
+
 html, body {
+    font-family: DIN, Helvetica, sans-serif;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    /* Max size */
+    font-size: 20px; 
+}
+
+@media screen and (max-width: 25em) {
+
+    html, body {
+        /* Max size */
+        font-size: 10px; 
+    }
+}
+@media screen and (max-width: 50em) {
+
+    html, body {
+        /* Max size */
+        font-size: 16px; 
+    }
+}
+@media screen and (min-width: 64em) {
+
+    html, body {
+        /* Max size */
+        font-size: 20px; 
+    }
+}
+
+/* UTILS */
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* IE/Edge */
+  user-select: none;           /* non-prefixed version, currently
+                                  not supported by any browser */
+  cursor: pointer;
 }
 
 /* Main divs */
@@ -108,6 +157,7 @@ html, body {
     height: 100%;
     overflow: hidden;
     display: table;
+    font-size: .75rem;
 }
 
 #sidebar {
@@ -134,7 +184,8 @@ html, body {
     width: 100%;
     height: 100%;
     position: absolute;
-    z-index: 0;
+    z-index: 10;
+    pointer-events: none;
 }
 
 /* Section: Container */
@@ -150,6 +201,7 @@ html, body {
     width: 100%;
     display: table;
     padding-bottom: 2%;
+    font-size: 1rem;
 }
 
 .titleText {
@@ -160,6 +212,12 @@ html, body {
     width: 100%;
     display: table;
     padding-bottom: 2%;
+    padding: 1%;
+    box-sizing: border-box;
+}
+
+.odd {
+    background: #F5F5F5;
 }
 
 .cell {
@@ -169,11 +227,11 @@ html, body {
 
 .middleCell {
     text-align: right;
-    padding-right: 2%;
+    padding-right: 4%;
 }
 
 .rightCell {
-    padding-left: 2%;
+    padding-left: 4%;
 }
 
 #titleClients {
@@ -185,6 +243,32 @@ html, body {
 #titleSub {
 }
 
+.appName {
+    font-weight: bold;
+}
+.appRA {
+    font-weight: normal;
+    font-size:.6rem;
+}
+
+.appDesc {
+    visibility: hidden;
+    display: none;
+}
+
+.appDBtn {
+    border: 1px solid #000;
+    border-radius: 50%;
+    height: .7rem;
+    width: .7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .6rem;
+    font-weight: bold;
+    margin-top: .3rem;
+}
+
 .routed {
     background: blue;
 }
@@ -193,9 +277,41 @@ html, body {
     background: grey;
 }
 
+.endClosed {
+    border: 0.35rem solid #000;
+    border-radius: 50%;
+    height: .2rem;
+    width: .2rem;
+    left: .5rem;
+    position: relative;
+    background: white;
+}
+
+.endOpen {
+    border: .15rem solid #000;
+    border-radius: 50%;
+    height: .5rem;
+    width: .5rem;
+    left: .5rem;
+    position: relative;
+    background: white;
+}
+
+.subscribe .endClosed, .subscribe .endOpen {
+    left: -.5rem;
+}
+
 .publish, .subscribe {
-    margin-bottom: 1%;
+    margin-bottom: .2rem;
     transition: background-color ease-out .1s;
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.subscribe {
+    justify-content: flex-start;
 }
 
 .marker {

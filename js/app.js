@@ -65,6 +65,7 @@ app.controller("adminCtl", function($scope, $timeout) {
 	// canvas vars
 	var canvas, ctx;
 	var paths = {};
+	var borderPath = null;
 
 	// spacebrew vars
 	var sb = null;
@@ -192,6 +193,9 @@ app.controller("adminCtl", function($scope, $timeout) {
 										paths[name].removeSegments();
 										delete paths[name];
 									}
+
+									//todo: route circle
+
 									break;
 								} else {
 								}
@@ -306,18 +310,49 @@ app.controller("adminCtl", function($scope, $timeout) {
 			path = paths[name];
 		}
 		path.strokeColor = 'black';
+		path.strokeWidth = 1;
 
 		var fromRect 	= fromDiv.getBoundingClientRect();
 		var toRect 		= toDiv.getBoundingClientRect();
 		var fromH 		= fromRect.bottom - fromRect.top;
 		var toH 		= toRect.bottom - toRect.top;
 
-		var start = new paper.Point(fromRect.right  , fromRect.top + fromH/2);
+		var start = new paper.Point(fromRect.right, fromRect.top + fromH/2);
 		var end = new paper.Point(toRect.left, toRect.top + toH/2);
 
-		path.moveTo(start);
-		path.lineTo(end);
+		var dX 	= 0;//( end.x - start.x )/8.;
+		var mpX	= ( end.x - start.x )/2.;
+		var mpY	= ( end.y - start.y )/2.
+
+		var mid1 = new paper.Point(start.x + dX, start.y );
+
+		var cp1 = new paper.Point( 0, 0 );
+		var cp2 = new paper.Point( (mpX - dX), 0 );
+
+		var cp4 = new paper.Point( 0, 0 );
+		var cp3 = new paper.Point( - (mpX - dX), 0 );
+		var mid2 = new paper.Point( start.x + mpX, start.y + mpY);
+		var mid3 = new paper.Point(end.x - dX, end.y );
+
+		// path.add(new paper.Segment(start));
+		path.add(new paper.Segment(mid1, cp1, cp2));
+		// path.add(new paper.Segment(mid2));
+		path.add(new paper.Segment(mid3, cp3, cp4));
+		// path.add(new paper.Segment(end));
+		// path.fullySelected = true;
+
+		// path.smooth({ type: 'continuous' });
 	
+		if ( borderPath == null){
+			borderPath = new paper.Path();
+			borderPath.strokeColor = '#7F7F7F';
+			borderPath.strokeWidth = 1;
+			borderPath.dashArray = [3, 4];
+			var tr = document.getElementById("titlePub").getBoundingClientRect();
+			borderPath.moveTo( tr.right, tr.top );
+			borderPath.lineTo( tr.right, window.innerHeight);
+		}
+
 		if (doRedraw ){
 			// Draw the view now:
 			paper.view.draw();
@@ -361,6 +396,19 @@ app.controller("adminCtl", function($scope, $timeout) {
 				}
 			}
 		}
+
+		// redraw border
+		if ( borderPath == null){
+			borderPath = new paper.Path();
+			borderPath.strokeColor = '#7F7F7F';
+			borderPath.strokeWidth = 1;
+			borderPath.dashArray = [3, 4];
+		}
+		borderPath.removeSegments();
+		var tr = document.getElementById("titlePub").getBoundingClientRect();
+		borderPath.moveTo( tr.right, tr.top );
+		borderPath.lineTo( tr.right, window.innerHeight);
+
 		// Draw the view now:
 		paper.view.draw();
 	}
@@ -380,6 +428,7 @@ app.controller("adminCtl", function($scope, $timeout) {
 	$scope.setupCanvas = function(){
 		canvas = document.getElementById('canvas');
 		paper.setup(canvas);
+
 		window.addEventListener('resize', onWindowResize.bind($scope));
 	}
 
