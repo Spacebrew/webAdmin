@@ -15,7 +15,9 @@ var app = angular.module("admin", []);
 app.controller("adminCtl", function($scope, $timeout) {
 	$scope.filter = "test";
 
+	$scope.clients = {};
 	/*
+		^^^^^^^^^^ is:
 		Object containing all pubsub info
 	 	Structure example, an app routed to itself:
 	 	{
@@ -59,7 +61,6 @@ app.controller("adminCtl", function($scope, $timeout) {
 			}
 	 	}
 	*/
-	$scope.clients = {};
 
 	// canvas vars
 	var canvas, ctx;
@@ -206,10 +207,14 @@ app.controller("adminCtl", function($scope, $timeout) {
 
 
 		if ( bFound ){
-			var fromDiv = "pub_" + pub.clientName + "_" + pubDiv;
-			var toDiv = "sub_" + sub.clientName + "_" + subDiv;
+			// "pub_" + clientName + "_" + remoteAddress + "_" + route name
+			var fromDiv = "pub_" + pub.clientName +"_"+ pub.remoteAddress + "_" + pubDiv;
+			var toDiv = "sub_" +   sub.clientName +"_"+ sub.remoteAddress + "_" + subDiv;
 			// todo: make this work for real
 			var name = pname +":"+ pub.name +":"+ sname + ":"+sub.name;
+
+			console.log("DRAW "+name);
+
 			$timeout(updatePath, 0, false, name, fromDiv, toDiv );
 		}
 
@@ -279,12 +284,14 @@ app.controller("adminCtl", function($scope, $timeout) {
 		DRAWING
 	**********************************************/
 
-	function updatePath( name, fromDivId, toDivId ){
+	function updatePath( name, fromDivId, toDivId, doRedraw ){
 		var fromDiv = document.getElementById(fromDivId);
 		var toDiv = document.getElementById(toDivId);
+		doRedraw = doRedraw === undefined ? true : doRedraw;
 
 		if ( !fromDiv || !toDiv ){
-			$timeout( updatePath, 0, false, name, fromDivId, toDivId );
+			return;
+			//$timeout( updatePath, 0, false, name, fromDivId, toDivId );
 		}
 
 		// todo: scrolling!
@@ -310,26 +317,49 @@ app.controller("adminCtl", function($scope, $timeout) {
 
 		path.moveTo(start);
 		path.lineTo(end);
-		// Draw the view now:
-		paper.view.draw();
+	
+		if (doRedraw ){
+			// Draw the view now:
+			paper.view.draw();
+		}
 	}
  
+/*
+	'default':0,
+	'name':'button',
+	'routes':[
+		{
+			'clientName':'CoolApp',
+			'name':'boolListener'
+			'remoteAddress':'192.168.1.1',
+			'type':'boolean'
+		}
+	],
+	'type':'boolean'
+ */
+
 	function redrawAll() {
-		for ( var name in paths ){
-			var path = paths[name];
-			path.removeSegments();
-			path.strokeColor = 'black';
+		// loop through all pubs, find paths, and redraw them!
+		for ( var name in $scope.clients ){
+			var client = $scope.clients[name];
+			var pubs = client.publish.messages;
+			for ( var i=0; i<pubs.length; i++){
+				var pub = pubs[i];
+				var fromDiv = "pub_" + client.name +"_"+ client.remoteAddress + "_" + pub.name;
 
-			var fromRect 	= fromDiv.getBoundingClientRect();
-			var toRect 		= toDiv.getBoundingClientRect();
-			var fromH 		= fromRect.bottom - fromRect.top;
-			var toH 		= toRect.bottom - toRect.top;
+				if ( !pub.routes ) continue;
 
-			var start = new paper.Point(fromRect.right  , fromRect.top + fromH/2);
-			var end = new paper.Point(toRect.left, toRect.top + toH/2);
+				for ( var j=0; j<pub.routes.length; j++){
+					var sub = pub.routes[j];
+					var toDiv = "sub_" + sub.clientName +"_"+ sub.remoteAddress + "_" + sub.name;
 
-			path.moveTo(start);
-			path.lineTo(end);
+					var pname = client.name +":"+ client.remoteAddress;
+					var sname = sub.clientName +":"+ sub.remoteAddress;
+					var name = pname +":"+ pub.name +":"+ sname + ":"+sub.name;
+
+					updatePath(name, fromDiv, toDiv, false);
+				}
+			}
 		}
 		// Draw the view now:
 		paper.view.draw();
@@ -340,7 +370,7 @@ app.controller("adminCtl", function($scope, $timeout) {
 	**********************************************/
 
 	function onWindowResize(e) {
-		
+		redrawAll();
 	}
 
 	/**********************************************
